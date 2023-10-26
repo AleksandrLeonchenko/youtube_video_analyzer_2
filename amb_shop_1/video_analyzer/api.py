@@ -16,7 +16,15 @@ from video_analyzer.service import clean_up_files
 
 
 class ClickHandler(APIView):
-    # class JSONFileView(APIView):
+    """
+    Здесь принимаем POST-запрос от клиента, сохраняем нужные данные в базу,
+    в частности user_id (если он есть), user_ip (ip-адрес клиента), video_id (идентификатор видео),
+    file_path (путь, по которому сохраняется файл в папку media), cookie_value (куки, если они будут нужны).
+    Затем по этим данным из базы можно будет найти файл. В названии файла отражены user_id, user_ip, video_id.
+    В файле данные представлены в виде списка словарей, при каждом новом POST-запросе от клиента, если имя файла
+    то же (user_id, user_ip, video_id те же) - то в список добавляется ещё один словарь с координатами клика,
+    таймингом клика и идентификатором видео.
+    """
     def post(self, request, format=None):
         user_id = request.data.get('user_id')
         user_ip = request.META.get('REMOTE_ADDR')
