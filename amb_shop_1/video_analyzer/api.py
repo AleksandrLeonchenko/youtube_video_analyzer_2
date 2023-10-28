@@ -29,7 +29,7 @@ class ClickHandler(APIView):
         user_id = request.data.get('user_id')
         user_ip = request.META.get('REMOTE_ADDR')
         video_id = request.data.get('video_id')
-        file_path = f"media/{user_id}_{user_ip}_{request.data.get('videoId')}.json"  # Путь для сохранения файла (список)
+        file_path = f"media/client_files/{user_id}_{user_ip}_{request.data.get('videoId')}.json"  # Путь для сохранения файла (список)
         # file_path = f"media/{user_id}_{user_ip}_{datetime.now().strftime('%Y%m%d%H%M%S')}.json"  # Путь для сохранения файла (словарь)
 
         data = request.data

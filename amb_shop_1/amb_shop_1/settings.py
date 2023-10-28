@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
 
     "video_analyzer.apps.VideoAnalyzerConfig",
+    "object_detection.apps.ObjectDetectionConfig",
 ]
 
 MIDDLEWARE = [
