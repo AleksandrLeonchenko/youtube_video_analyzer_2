@@ -13,6 +13,8 @@ from celery import shared_task
 from video_analyzer.models import UserFiles
 from video_analyzer.serializers import UserFilesSerializer
 from video_analyzer.service import clean_up_files
+from amb_shop_1.settings import MEDIA_ROOT
+from amb_shop_1 import settings
 
 
 class ClickHandler(APIView):
@@ -24,13 +26,27 @@ class ClickHandler(APIView):
     В файле данные представлены в виде списка словарей, при каждом новом POST-запросе от клиента, если имя файла
     то же (user_id, user_ip, video_id те же) - то в список добавляется ещё один словарь с координатами клика,
     таймингом клика и идентификатором видео.
+    Здесь файлы сохраняются не в базу, а в файловое хранилище - это для того, стобы долго их не хранить и с помощью
+    селери и редис периодически удалять, так как у каждого юзера их может быть очень много.
     """
     def post(self, request, format=None):
         user_id = request.data.get('user_id')
         user_ip = request.META.get('REMOTE_ADDR')
         video_id = request.data.get('video_id')
-        file_path = f"media/client_files/{user_id}_{user_ip}_{request.data.get('videoId')}.json"  # Путь для сохранения файла (список)
-        # file_path = f"media/{user_id}_{user_ip}_{datetime.now().strftime('%Y%m%d%H%M%S')}.json"  # Путь для сохранения файла (словарь)
+        file_path = f"media/client_files/{user_id}_{user_ip}_{request.data.get('videoId')}.json"  # Путь для сохранения файла (1 вариант)
+        # file_path = os.path.relpath(  # Путь для сохранения файла (2 вариант)
+        #     os.path.join(
+        #         MEDIA_ROOT,
+        #         "client_files",
+        #         user_id,
+        #         "_",
+        #         user_ip,
+        #         "_",
+        #         request.data.get('videoId'),
+        #         ".json"
+        #     ),
+        #     settings.BASE_DIR
+        # )
 
         data = request.data
         cookie_value = request.COOKIES.get('cookie_name')

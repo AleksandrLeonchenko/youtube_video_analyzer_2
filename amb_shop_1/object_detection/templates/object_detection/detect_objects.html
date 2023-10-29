@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Detect Objects</title>
+</head>
+<body>
+    <h2>Нажмите кнопку, чтобы запустить обработку видео</h2>
+    <form action="{% url 'object_detector_view' %}" method="get">
+        <button type="submit">Запустить обработку</button>
+    </form>
+</body>
+</html>

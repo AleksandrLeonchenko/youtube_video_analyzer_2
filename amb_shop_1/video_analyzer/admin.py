@@ -7,8 +7,8 @@ class UserFilesAdmin(admin.ModelAdmin):
         'id',
         'user_id',
         'user_ip',
-        'video_id',
         'cookie_value',
+        'video_id',
         'file_path',
     ]
     list_display_links: list[str] = list_display
