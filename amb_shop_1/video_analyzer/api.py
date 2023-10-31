@@ -34,7 +34,7 @@ class ClickHandler(APIView):
         user_ip = request.META.get('REMOTE_ADDR')
         video_id = request.data.get('video_id')
         file_path = f"media/client_files/{user_id}_{user_ip}_{request.data.get('videoId')}.json"  # Путь для сохранения файла (1 вариант)
-        # file_path = os.path.relpath(  # Путь для сохранения файла (2 вариант)
+        # file_path = os.path.relpath(  # Путь для сохранения файла (2 вариант - не работает)
         #     os.path.join(
         #         MEDIA_ROOT,
         #         "client_files",
