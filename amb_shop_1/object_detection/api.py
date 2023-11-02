@@ -16,7 +16,7 @@ from amb_shop_1 import settings
 from amb_shop_1.settings import MEDIA_ROOT
 
 from .models import ProcessedFiles, SourceVideoFiles
-from .serializers import UploadingVideoFileSerializer, VideoFilesSerializer
+from .serializers import UploadingVideoFileSerializer, VideoFilesSerializer, ObjectLabelsSerializer
 
 
 class UploadingVideoFile(APIView):
@@ -76,7 +76,7 @@ class ProcessVideo(APIView):
     """
     detections_data = []  # Инициализация пустого списка для обнаруженных объектов
 
-    def detect_objects(self, frame):
+    def detect_objects(self, frame, object_labels):
         # model = tf.saved_model.load('../ssd_mobilenet_v2_coco_2018_03_29/saved_model')  # Обученная модель
         model = tf.saved_model.load('ssd_mobilenet_v2_coco_2018_03_29/saved_model')  # Обученная модель
         infer = model.signatures["serving_default"]  # Получение подписи 'serving_default' из модели0.+-
@@ -85,17 +85,29 @@ class ProcessVideo(APIView):
         boxes = detections['detection_boxes'][0].numpy()  # Извлечение границ обнаруж. объектов из результатов модели
         classes = detections['detection_classes'][0].numpy().astype(np.int32)  # Извлечение классов ...
         scores = detections['detection_scores'][0].numpy()  # Извлечение оценок ...
-        object_labels = {
+        # НУЖНО БУДЕТ ПОТОМ ИЗУЧИТЬ:
+        # Полный список меток объектов, его нужно показать на странице и отправить POST-запросом нужный на сервер:
+        object_labels_all = {
             1: 'person',
             2: 'bicycle',
             # Добавим потом другие метки объектов по мере необходимости
         }
+        print('---*******detect_objects*****-----object_labels----------', object_labels)
+        print('---*******detect_objects*****-----frame----------', frame)
+        # object_labels = self.object_labels
+
+        # object_labels = {
+        #     1: 'person',
+        #     2: 'bicycle',
+        #     # Добавим потом другие метки объектов по мере необходимости
+        # }
 
         return boxes, classes, scores, object_labels
 
-    def process_video(self, video_file):
+    def process_video(self, video_file, object_labels):
         print('----/////---до работы функция process_video---/////----')
-        print('---*******1*****------video_file-----', video_file)
+        print('---*******process_video*****------video_file-----', video_file)
+        print('---*******process_video*****-----object_labels----------', object_labels)
         model = tf.saved_model.load('ssd_mobilenet_v2_coco_2018_03_29/saved_model')  # Обученная модель
         infer = model.signatures["serving_default"]  # Получение подписи 'serving_default' из модели
         # video_path = os.path.join(MEDIA_ROOT, "source_video_files/test.mp4")
@@ -117,7 +129,7 @@ class ProcessVideo(APIView):
 
             if frame_count % 100 == 0:  # Проверка для каждого 100-го кадра
                 print('---1------frame_count-----', frame_count)
-                boxes, classes, scores, object_labels = self.detect_objects(frame)  # Границы, оценки и классы обнаруженных объектов
+                boxes, classes, scores, object_labels = self.detect_objects(frame, object_labels)  # Границы, оценки и классы обнаруженных объектов
 
                 confidence_threshold = 0.5
 
@@ -161,6 +173,7 @@ class ProcessVideo(APIView):
                         })
                         print('---2------detections_data-----', self.detections_data)
 
+                # # СОЗДАНИЕ ФАЙЛА - ВАРИАНТ 3 ФАЙЛ СОЗДАЁТСЯ СРАЗУ, ВОЗМОЖНО ВАРИАНТ МЕДЛЕННЫЙ:
                 # # Получение имени исходного видеофайла
                 # video_name = os.path.basename(video_path).split('.')[0]  # Извлечение имени файла без расширения
                 # # Изменение имени сохраняемого JSON-файла с использованием имени исходного видеофайла
@@ -173,6 +186,7 @@ class ProcessVideo(APIView):
             if cv2.waitKey(1) & 0xFF == ord('q'):  # Проверка, была ли нажата клавиша "q" для выхода
                 break  # Прерывание цикла обработки кадров
 
+            # # СОЗДАНИЕ ФАЙЛА - ВАРИАНТ 1, ПРЕИМУЩЕСТВЕННЫЙ:
             # # Получение имени исходного видеофайла
             # video_name = os.path.basename(video_path).split('.')[0]  # Извлечение имени файла без расширения
             # # Изменение имени сохраняемого JSON-файла с использованием имени исходного видеофайла
@@ -185,6 +199,7 @@ class ProcessVideo(APIView):
 
         print('----/////---после работы функция process_video---/////----')
 
+        # # СОЗДАНИЕ ФАЙЛА - ВАРИАНТ 2, ТОЖЕ РАБОТАЕТ:
         # Получение имени исходного видеофайла
         video_name = os.path.basename(video_path).split('.')[0]  # Извлечение имени файла без расширения
         # Изменение имени сохраняемого JSON-файла с использованием имени исходного видеофайла
@@ -197,6 +212,7 @@ class ProcessVideo(APIView):
         with open(file_path, "w") as f:
             json.dump(self.detections_data, f)  # Запись обнаруженных данных в формате JSON по пути file_path
 
+        # # СОЗДАНИЕ ЗАПИСИ В ТАБЛИЦЕ БАЗЫ ДАННЫХ:
         print('---13------video_path-----', video_path)
         print('---13------file_name-----', json_file_name)
         print('---13------file_path-----', file_path)
@@ -228,12 +244,24 @@ class ProcessVideo(APIView):
     def get(self, request, pk):
         try:
             instance = SourceVideoFiles.objects.get(pk=pk)
-            video_file = instance.video_file
-            print('---***get***----до работы функции process_video-------')
-            # self.process_video(video_file)
-            print('---23------self.process_video(video_file)-----', self.process_video(video_file))
-            print('---***get***----после работы функции process_video-------')
-
-            return Response({"message": "Video processing initiated"}, status=status.HTTP_200_OK)
+            serializer = VideoFilesSerializer(instance)
+            print('-----get-----instance----------', instance)
+            print('-----get-----serializer.data----------', serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         except SourceVideoFiles.DoesNotExist:
             return Response({"message": "Video not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    def post(self, request, pk: int, *args, **kwargs):
+        serializer = ObjectLabelsSerializer(data=request.data)
+        print('-----post-----request.data----------', request.data)
+        if serializer.is_valid():
+            object_labels = serializer.validated_data.get('object_labels')
+            instance = SourceVideoFiles.objects.get(pk=pk)
+            video_file = instance.video_file
+            self.process_video(video_file, object_labels)
+            print('-----post-----object_labels----------', object_labels)
+            print('-----post-----instance----------', instance)
+            print('-----post-----video_file----------', video_file)
+            print('---1-------serializer.errors----------', serializer.errors)
+            return Response({"message": "Video processing initiated"}, status=200)
+        return Response(serializer.errors, status=400)

@@ -53,8 +53,50 @@ VESeA6leQuk&list=PLA0M1Bcd0w8yv0XGiF1wjerjSZVSrYbjh&index=37 - это идент
 
 Здесь мы загружаем на сервер видеофайл и он обрабатывается в ProcessVideo(APIView).
 
+POST-запрос по адресу http://127.0.0.1:8000/processing/video/16/start:
+{"object_labels": {"1": "person", "2": "bicycle" } }
+
+
 Подробнее об обработке файла:
 
+
+Пример сохраняемого json-файла:
+[
+  {
+    "coordinates": [
+      39,
+      15,
+      1184,
+      707
+    ],
+    "confidence": 0.700934648513794,
+    "timestamp": 3.3333333333333335,
+    "item_name": "person",
+    "article_fragment": "123",
+    "additional_identifier": "456"
+  },
+  {
+    "coordinates": [
+      46,
+      21,
+      1182,
+      709
+    ],
+    "confidence": 0.6615978479385376,
+    "timestamp": 10.0,
+    "item_name": "person",
+    "article_fragment": "123",
+    "additional_identifier": "456"
+  },
+.......
+
+Здесь:
+"coordinates": [xmin, ymin, xmax, ymax],  # Координаты границ объекта
+"confidence": float(score),  # Оценка объекта
+"timestamp": timestamp,  # Временная метка объекта
+"item_name": object_labels[cls], (название определяемого объекта)
+"article_fragment": "123", (часть артикула продукта, по которой найдём нужный продукт в БД)
+"additional_identifier": "456" (дополнительный идентификатор для добавления к продукту)
 
 Пример имени json-файла, полученного в результате
 обработки видеофайла VESeA6leQuk&list=PLA0M1Bcd0w8yv0XGiF1wjerjSZVSrYbjh&index=37.mp4:
@@ -63,7 +105,3 @@ VESeA6leQuk&list=PLA0M1Bcd0w8yv0XGiF1wjerjSZVSrYbjh&index=37_detections.json
 перед загрузкой в директорию media/source_video_files видеофайла, необходимо присвоить ему правильное имя,
 соответствующее идентификатору этого видео на Youtube.
 
-                        # Здесь выше нужно добавить поля, определяемое заранее:
-                        # название определяемого объекта (item_name),
-                        # часть артикула продукта, по которой найдём нужный продукт в БД (article_fragment),
-                        # дополнительный идентификатор для добавления к продукту(additional_identifier).
