@@ -17,7 +17,7 @@ class ProcessedFilesAdmin(admin.ModelAdmin):
 class SourceVideoFilesAdmin(admin.ModelAdmin):
     list_display: list[str] = [
         'id',
-        'file_name',
+        # 'file_name',
         'video_file',
         'date_of_download',
         'processed'

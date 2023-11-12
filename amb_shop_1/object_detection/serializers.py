@@ -26,12 +26,4 @@ class VideoFilesSerializer(serializers.ModelSerializer):
 
 
 class ObjectLabelsSerializer(serializers.Serializer):
-    object_labels = serializers.DictField(child=serializers.CharField())
-
-    # def create(self, validated_data):
-    #     return validated_data.get('object_labels')
-    #
-    # def update(self, instance, validated_data):
-    #     instance.update(validated_data.get('object_labels', instance))
-    #     return instance
-
+    object_labels = serializers.JSONField()

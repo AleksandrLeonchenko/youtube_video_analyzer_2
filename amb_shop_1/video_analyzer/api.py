@@ -121,3 +121,17 @@ class ClickHandler(APIView):
         # clean_up_files.apply_async((user_id,), countdown=86400)  # 24 часа = 86400 секунд
 
         return Response({'status': 'success', 'message': 'File saved successfully'}, status=status.HTTP_200_OK)
+
+
+# def comparison():
+#     """
+#         Сравниваем координаты клика и координаты рамки объекта (с учётом времени)
+#     """
+#     if x_min <= x <= x_max and y_min <= y <= y_max and (timestamp_2 - 1) <= timestamp_1 <= (timestamp_2 + 1):
+#         # Точка с координатами (X, Y) находится внутри рамки и в нужное время
+#         print("Точка находится внутри рамки")
+#     else:
+#         # Точка с координатами (X, Y) находится вне рамки и не в нужном временном интервале
+#         print("Точка находится вне рамки")
+#
+#     pass

@@ -55,6 +55,9 @@ VESeA6leQuk&list=PLA0M1Bcd0w8yv0XGiF1wjerjSZVSrYbjh&index=37 - это идент
 
 POST-запрос по адресу http://127.0.0.1:8000/processing/video/16/start:
 {"object_labels": {"1": "person", "2": "bicycle" } }
+Здесь метка "1" (в обученной модели она имеет числовой тип, а не строковый) - соответствует объекту "person" (человек),
+и т.п. Таким образом, в этом теле запроса мы должны отобразить все желаемые к нахождению объекты. Соответствие меток объектам
+нужно смотреть в документации к модели (например объекту "человек" - соответствует метка 1, и т.д.)
 
 
 Подробнее об обработке файла:
@@ -64,29 +67,31 @@ POST-запрос по адресу http://127.0.0.1:8000/processing/video/16/st
 [
   {
     "coordinates": [
-      39,
-      15,
-      1184,
-      707
+      1,
+      0,
+      402,
+      717
     ],
-    "confidence": 0.700934648513794,
-    "timestamp": 3.3333333333333335,
+    "confidence": 0.9303296804428101,
+    "timestamp": 0.0,
     "item_name": "person",
     "article_fragment": "123",
-    "additional_identifier": "456"
+    "additional_identifier": "456",
+    "frame_number": 0
   },
   {
     "coordinates": [
-      46,
-      21,
-      1182,
-      709
+      0,
+      1,
+      406,
+      719
     ],
-    "confidence": 0.6615978479385376,
-    "timestamp": 10.0,
+    "confidence": 0.8997310400009155,
+    "timestamp": 3.3333333333333335,
     "item_name": "person",
     "article_fragment": "123",
-    "additional_identifier": "456"
+    "additional_identifier": "456",
+    "frame_number": 100
   },
 .......
 
@@ -97,6 +102,7 @@ POST-запрос по адресу http://127.0.0.1:8000/processing/video/16/st
 "item_name": object_labels[cls], (название определяемого объекта)
 "article_fragment": "123", (часть артикула продукта, по которой найдём нужный продукт в БД)
 "additional_identifier": "456" (дополнительный идентификатор для добавления к продукту)
+"frame_number": 100  (номер кадра)
 
 Пример имени json-файла, полученного в результате
 обработки видеофайла VESeA6leQuk&list=PLA0M1Bcd0w8yv0XGiF1wjerjSZVSrYbjh&index=37.mp4:

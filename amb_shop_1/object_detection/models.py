@@ -34,7 +34,7 @@ class ProcessedFiles(models.Model):
 class SourceVideoFiles(models.Model):
     file_name = models.CharField(
         max_length=1000,
-        null=True,
+        null=True,  # Нужно это поле сделать обязательным
         verbose_name='Имя исходного видеофайла'
     )
     video_file = models.FileField(
